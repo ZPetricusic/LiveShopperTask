@@ -60,7 +60,7 @@ try{
     // $t->removeTrainCar(Train::FRONT);
     // $t->removeTrainCar(Train::FRONT);
 
-    //$t->removeTrainCar(0); # error
+    // $t->removeTrainCar(0); # error
 
     $t->printTrain();
 
@@ -71,7 +71,7 @@ try{
     $t->addTrainCar($c2, Train::FRONT);
     $t->addTrainCar($c2, Train::FRONT);
     $t->addTrainCar($c5, Train::REAR); // engine
-    //$t->addTrainCar($c6, Train::REAR); # error
+    // $t->addTrainCar($c6, Train::REAR); # error
 
 
     $t->printTrain();

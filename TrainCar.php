@@ -7,7 +7,10 @@ class TrainCar {
     const PASSENGER = 2;
     const ENGINE = 3;
 
-    # PROPERTIES
+    ////////////////////////////////////
+    //////      PROPERTIES      ////////
+    ////////////////////////////////////
+
     private $weight;
     private $type;
 

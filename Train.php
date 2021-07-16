@@ -10,26 +10,35 @@ class Train{
     # max capacity
     const MAX_CAPACITY = 30;
 
-    # PROPERTIES
+
+    ////////////////////////////////////
+    //////      PROPERTIES      ////////
+    ////////////////////////////////////
 
     # all the cars connected to the train
     private $carChain = [];
 
-    # train's total weight should be 0 at the beginning
+    # total weight of all connected cars
     private $totalWeight = 0;
 
-    # the trains orientation
+    # the trains direction
     # c = cargo or passengers, E = engine
     # Eccccc -> FRONT, cccccE -> BACK
     # can't have ccEcc!
-    private $orientation = 0;
+    private $movementDirection = 0;
 
     # add a boolean to check if there's an engine connected
     # faster than looping through the chain
     private $isEngineConnected = false;
 
+
+
+    /////////////////////////////////
+    //////      METHODS      ////////
+    /////////////////////////////////
+
     # add a car to the train's front or rear
-    public function addTrainCar(TrainCar $t, $placement){
+    public function addTrainCar(TrainCar $t, $placementSide){
 
         # if there's already 30 cars on the train
         if($this->isTrainFull())
@@ -40,68 +49,55 @@ class Train{
             throw new Exception("An engine has already been connected to this train!");
 
         # if the placement is not correctly set
-        if( !($this->isPlacementValid($placement)) )
+        if( !($this->isPlacementValid($placementSide)) )
             throw new Exception("Car placement can only be Train::FRONT or Train::REAR!");
 
-        # if the train was already orientated
-        # based on the engine and at least one car
-        if($this->orientation !== 0){
 
-            # check if the wanted placement does not match the current train orientation
-            if($placement === $this->orientation)
-                throw new Exception("Cannot place the car on the selected side!");
+        # if the train was already directed and now the user is
+        # trying to add a car in a spot which would "block" the train
+        # e.g. Ecc - current, want to add: xEcc
+        if($this->movementDirection !== 0 && $placementSide === $this->movementDirection)
+            throw new Exception("Cannot place the car on the selected side!");
 
-            # since no engine can be added once the orientation is set
-            # we can just add the car which will be either a cargo or a passenger one
-            switch ($placement) {
-                case Train::FRONT:
-                    array_unshift($this->carChain, $t);
-                    break;
-                case Train::REAR:
-                    array_push($this->carChain, $t);
-                    break;
-            }
+        # attach the car to the train
+        switch ($placementSide) {
+            case Train::FRONT:
+                array_unshift($this->carChain, $t);
+                break;
+            case Train::REAR:
+                array_push($this->carChain, $t);
+                break;
+        }
 
-        } else{ // not having the train orientated gives a little bit more freedom
-
-            # attach the car to the train
-            switch ($placement) {
-                case Train::FRONT:
-                    array_unshift($this->carChain, $t);
-                    break;
-                case Train::REAR:
-                    array_push($this->carChain, $t);
-                    break;
-            }
-
-            # if the user is adding an engine to existing cargo or passenger cars
-            # it means we can direct the train
-            if( ($t->getCarType() === TrainCar::ENGINE) && (count($this->carChain) > 0) ){
-                $this->orientation = $placement;
-                $this->isEngineConnected = true;
-            }
-
+        # if the user is adding an engine to existing cargo or passenger cars
+        # we can direct the train
+        if( ($t->getCarType() === TrainCar::ENGINE) && (count($this->carChain) > 0) ){
+            $this->movementDirection = $placementSide;
+            $this->isEngineConnected = true;
         }
 
         # adjust the weight
         $this->totalWeight += $t->getWeight();
     }
 
+
+
+
     # remove the car from a selected side
-    public function removeTrainCar($side){
+    public function removeTrainCar($placementSide){
 
             # if the placement is not correctly set
-            if( !($this->isPlacementValid($side)) )
+            if( !($this->isPlacementValid($placementSide)) )
                 throw new Exception("Car placement can only be Train::FRONT or Train::REAR!");
 
-            # if the "train" is already empty
+            # if no cars of any type are attached to the "train"
             if( $this->isTrainEmpty() )
                 throw new Exception("Cannot remove non-existing cars from empty train!");
 
             $removedCart = null;
 
             # detach the car from the train
-            switch ($side) {
+            switch ($placementSide) {
                 case Train::FRONT:
                     $removedCart = array_shift($this->carChain);
                     break;
@@ -113,7 +109,7 @@ class Train{
             # if the user removes the engine "reset" the cars
             if($removedCart->getCarType() === TrainCar::ENGINE){
                 $this->isEngineConnected = false;
-                $this->orientation = 0;
+                $this->movementDirection = 0;
             }
 
             #adjust the weight
@@ -125,7 +121,6 @@ class Train{
     /////////////////////////////////////
     //////   GETTERS & SETTERS   ////////
     /////////////////////////////////////
-
     public function getTrainWeight(){
         return $this->totalWeight;
     }
@@ -133,6 +128,7 @@ class Train{
     public function getTrainLength(){
         return count($this->carChain);
     }
+
 
     ////////////////////////////////////
     //////      AUXILIARIES     ////////
@@ -142,9 +138,12 @@ class Train{
         #print format:
             //type[weight]
             //total weight of the train
-
+        echo "Train: ";
         for($i = 0; $i < count($this->carChain); $i++)
-            echo $this->carChain[$i]->getCarType()."[".$this->carChain[$i]->getWeight()."]";
+            echo $this->carChain[$i]->getCarType().
+                 "[".
+                 $this->carChain[$i]->getWeight().
+                 "]";
         echo "<br/>".$this->getTrainWeight();
         echo "<br/>".$this->getTrainLength();
         echo "<br/>";
@@ -167,19 +166,6 @@ class Train{
         # false otherwise
         return count($this->carChain) === 0;
     }
-    # get za broj carova
-
-    # total tezina cijelog vlaka
-
-    /*
-        NAPUTCI
-
-        Vlak ne moze imati lokomotivu u sredini
-
-        Kad se doda lokomotiva i prvi vagon oni diktiraju smjer "punjenja" vlaka
-
-        Javi ako ne postoji lokomotiva trenutno u lancu
-    */
 }
 
 ?>
