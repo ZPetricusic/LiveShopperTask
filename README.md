@@ -2,6 +2,12 @@
 
 Here I will clarify some of my decisions in the code.
 
+## BONUS DIRECTORY
+The bonus directory contains the solution to the bonus task.
+In there, many more principles of OOP have been applied and the code
+was split into several different classes, each with its own purpose.
+
+The test file remained mostly the same.
 ## Thought process
 
 A train can be assembled in two ways:
